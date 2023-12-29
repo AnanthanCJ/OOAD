@@ -62,29 +62,30 @@ public class BankService {
 
 				if (serviceChoice.equals("y")) {
 					do {
-					System.out.println("Enter the service code you want to add");
-					String selectedServiceCode = scanner.nextLine();
-					int flag=0;
-					for (Service service : serviceList) {
-						if(newServiceList.contains(service)) {
-							System.out.println(" sorry ,you can't add the same service twice");
-						}
-						else {
-							if (selectedServiceCode.equalsIgnoreCase(service.getServiceCode())) 
-							{
+						System.out.println("Enter the service code you want to add");
+						String selectedServiceCode = scanner.nextLine();
+						int flag=0;
+						for (Service service : serviceList) {
+							if(newServiceList.contains(service)) {
+								System.out.println(" sorry ,you can't add the same service twice");
 								flag=1;
-								newServiceList.add(service);
-								System.out.println("Service added");
-							
 							}
-							
+							else {
+								if (selectedServiceCode.equalsIgnoreCase(service.getServiceCode())) 
+								{
+									flag=1;
+									newServiceList.add(service);
+									System.out.println("Service added");
+								
+								}
+								
+							}
 						}
-					}
-					if(flag==0) {
-						System.out.println("No Such Service");
-					}
-					System.out.println("Do you want to add more services? (y/n)");
-					repeatChoice = scanner.nextLine();
+						if(flag==0) {
+							System.out.println("No Such Service");
+						}
+						System.out.println("Do you want to add more services? (y/n)");
+						repeatChoice = scanner.nextLine();
 				}while ("y".equals(repeatChoice));
 				
 			} 
@@ -110,6 +111,8 @@ public class BankService {
 		return product;
 	}
 
+	
+	
 	public static void displayService(ArrayList<Service> serviceList) {
 		if (serviceList == null || serviceList.isEmpty()) {
 			System.out.println("no services in the list");
@@ -131,6 +134,7 @@ public class BankService {
 		else { 
 		ArrayList<Account> accountList = new ArrayList<Account>();
 		String accountChoice ;
+		Product customerProduct = null;
 		
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Enter customer code");
@@ -143,8 +147,7 @@ public class BankService {
 		String accountNo = scanner.nextLine();
 		System.out.println("Enter account Type");
 		String accountType = scanner.nextLine();
-		System.out.println("Enter account balance");
-		double accountBalance = scanner.nextDouble();
+		
 		
 			displayProduct(productList);
 		System.out.println("Enter product code you want");
@@ -155,13 +158,24 @@ public class BankService {
 
 				if (product.getProductCode().equalsIgnoreCase(wantProductCode)) {
 
-					Account account = new Account(accountNo, accountType, accountBalance, product);
-					accountList.add(account);
-				   System.out.println("product added");
+					customerProduct = product;
+					if(product instanceof SavingsMaxAccount) {
+						customerProduct = (SavingsMaxAccount) customerProduct;
+					}
 				}
 				
 			}
-		
+			
+			System.out.println("Enter account balance");
+			double accountBalance = scanner.nextDouble();
+			if(customerProduct instanceof SavingsMaxAccount && accountBalance<1000) {
+				System.out.println("minimum balance of 1000 required , try again later");
+				return null;
+			}
+			
+			Account account = new Account(accountNo, accountType, accountBalance, customerProduct);
+			accountList.add(account);
+		   System.out.println("product added");
 	
 		
 		System.out.println("Do you want to add more accounts y/n");
@@ -188,6 +202,8 @@ public class BankService {
 			}
 		}
 	}
+	
+	
 
 	public static void displayCustomer(Customer customer) {
 		if(customer != null) {
@@ -219,6 +235,8 @@ public class BankService {
 	}
 	}
 
+	
+	
 	public static Customer manageAccount(Customer customer) {
 		String mainChoice = null;
 		int switchChoice;
@@ -248,7 +266,7 @@ public class BankService {
 				System.out.println("1.Deposit");
 				System.out.println("2.Withdraw");
 				System.out.println("3.Check Balance");
-				System.out.println("8.Exit");
+				System.out.println("4.Exit");
 				System.out.println();
 
 				
@@ -267,7 +285,8 @@ public class BankService {
 				default: System.out.println("bye bye");
 						 
 				}
-				System.out.println("Do you want to go back to menu (y/n)");
+				System.out.println("Do you want to go back to Account  menu (y/n)");
+				scanner.nextLine();
 				mainChoice = scanner.nextLine();
 					}while(mainChoice.equals("y"));
 
@@ -276,6 +295,8 @@ public class BankService {
 		}
 		return customer;
 	}
+	
+	
 
 	private static Customer checkBalance(Customer customer) {
 		ArrayList<Account> accountList = customer.getAccountList();
@@ -283,18 +304,16 @@ public class BankService {
 		System.out.println("Enter the account Number");
 		String accountNo = scanner.nextLine();
 		for(Account account:accountList) {
-			if(account.getAccountNo() == accountNo) {
+			if(account.getAccountNo().equalsIgnoreCase(accountNo)) {
 				System.out.println("Your balance amount is " + account.getBalance());
 				
 			}
-			else 
-			{
-				System.out.println("no such account exist");
-			}
+			
 		}
 		return customer;
 	}
 
+	
 	private static Customer withdrawMoney(Customer customer) {
 		ArrayList<Account> accountList = customer.getAccountList();
 
@@ -304,6 +323,9 @@ public class BankService {
 		String accountNo = scanner.nextLine();
 		System.out.println("Enter the amount you want to withdraw");
 		double amount = scanner.nextDouble();
+		if(amount <= 0) {
+			System.out.println("nice try ,try again");
+		}
 		for(Account account:accountList) {
 			if(account.getAccountNo().equalsIgnoreCase(accountNo))
 			{
@@ -311,6 +333,7 @@ public class BankService {
 					SavingsMaxAccount savingsMaxAccount = (SavingsMaxAccount) account.getProduct();
 					if(account.getBalance()-amount<savingsMaxAccount.getMinimumBalance()) {
 						System.out.println("insufficient balance , minimum balance has to maintained");
+						return customer;
 					}else {
 						account.setBalance(account.getBalance()-amount);
 					}
@@ -319,6 +342,7 @@ public class BankService {
 					if(amount>balance)
 					{
 						System.out.println("insufficient balance ");
+						return customer;
 					}
 					else {
 						account.setBalance(balance - amount);
@@ -334,8 +358,11 @@ public class BankService {
 		return customer;
 	}
 
+	
+	
 	private static Customer depositMoney(Customer customer) {
 		ArrayList<Account> accountList = customer.getAccountList();
+		Account customerAccount = null;
 
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Enter the account Number");
@@ -343,25 +370,45 @@ public class BankService {
 		System.out.println("Enter the amount you want to deposit");
 		
 		double amount = scanner.nextDouble();
-		System.out.println("Are you using ChequeDeposit true/false");
-		boolean isCheque = scanner.nextBoolean();
+		
+		
+		
 		for(Account account:accountList) {
-			if(account.getAccountNo() == accountNo)
+			if(account.getAccountNo().equalsIgnoreCase(accountNo))
 			{
-				double balance = account.getBalance();
-				if(account.getProduct() instanceof LoanAccount && isCheque )
+				
+					customerAccount = account;
+			}
+		}
+			if(customerAccount != null) 
+			{
+			double balance = customerAccount.getBalance();
+			if(customerAccount.getProduct() instanceof LoanAccount)
+			{
+				System.out.println("Are you using ChequeDeposit true/false");
+				boolean isCheque = scanner.nextBoolean();
+				if(isCheque) {
+		  	  LoanAccount loanAccount = (LoanAccount) customerAccount.getProduct();
+		  	  Double chequeDeposit = loanAccount.getChequeDeposit();
+		  	  customerAccount.setBalance((balance + amount)*chequeDeposit);
+				}
+				else
 				{
-			  	  LoanAccount loanAccount = (LoanAccount) account.getProduct();
-			  	  Double chequeDeposit = loanAccount.getChequeDeposit();
-			  	  account.setBalance((balance + amount)*chequeDeposit);
+					customerAccount.setBalance(balance+amount);
 				}
 				
 			}
+
+			System.out.println("Successfully money deposited");
+			return customer;
+			}
+			else {
+				System.out.println("no such account exists, please try again later");
+				return customer;
+			}
 		
 		
-	}
-		System.out.println("Successfully money deposited");
-		return customer;
+	
 	}
 
 }
