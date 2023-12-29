@@ -151,7 +151,7 @@ public class BankService {
 		
 			displayProduct(productList);
 		System.out.println("Enter product code you want");
-		scanner.nextLine();
+		
 		String wantProductCode = scanner.nextLine();
 		 
 			for (Product product : productList) {
