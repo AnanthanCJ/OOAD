@@ -13,28 +13,48 @@ import com.ilp.entity.Service;
 
 public class BankService {
 
-	public static Service addService() {
+	public static Service addService(ArrayList<String> serviceCodes) {
 		Scanner scanner = new Scanner(System.in);
-
+		String repeat = "n";
+		String serviceCode;
 		System.out.println("1.Cash Deposit  2. ATM withdrawal  3.Online banking  4.Mobile banking 5.Cheque Deposit ");
+		  
+		if(serviceCodes != null) {
+		    do {
+					System.out.println("Enter the service code");
+					 serviceCode = scanner.nextLine();
+					if(serviceCodes.contains(serviceCode)) {
+						System.out.println("service code already exists, try a different service code");
+						repeat = "y";
+					}
+					else {
+						 repeat = "n";
+					}
+		        }while(repeat == "y");	
+		}
+		else {
 
-		System.out.println("Enter the service code");
-		String serviceCode = scanner.nextLine();
+			System.out.println("Enter the service code");
+			 serviceCode = scanner.nextLine();
+			
+		}
 		System.out.println("Enter the service name");
 		String serviceName = scanner.nextLine();
 		System.out.println("Enter the service rate");
 		double rate = scanner.nextDouble();
 		scanner.nextLine();
 		Service service = new Service(serviceCode, serviceName, rate);
-
+		
+		
 		return service;
 	}
 
-	public static Product createProduct(ArrayList<Service> serviceList) {
+	public static Product createProduct(ArrayList<Service> serviceList, ArrayList<String> productCodes) {
 		ArrayList<Service> newServiceList = new ArrayList<Service>();
 		String repeatChoice;
 		Product product = null;
-		
+		String productCode;
+		String repeat = "n";
 		if (serviceList == null || serviceList.isEmpty()) {
 			System.out.println("No services in the list");
 			
@@ -42,10 +62,29 @@ public class BankService {
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("1. SavingsMax account  2. Current Account 3. Loan account");
 		int choice = scanner.nextInt();
+		
+		if(productCodes != null) {
+		    do {
+		    	System.out.println("Enter the product code");
+				 productCode = scanner.next();
 
-		System.out.println("Enter the product code");
-		String productCode = scanner.next();
+					if(productCodes.contains(productCode)) {
+						System.out.println("service code already exists, try a different service code");
+						repeat = "y";
+					}
+					else {
+						 repeat = "n";
+					}
+		        }while(repeat == "y");	
+		}
+		else {
+			System.out.println("Enter the product code");
+			 productCode = scanner.next();
 
+			
+		}
+
+		
 		System.out.println("Enter the product name");
 		String productName = scanner.next();
 
@@ -59,18 +98,25 @@ public class BankService {
 				System.out.println("Do you want to add any services? (y/n)");
 				scanner.nextLine(); // Consume newline character
 				String serviceChoice = scanner.nextLine();
-
+				
 				if (serviceChoice.equals("y")) {
 					do {
 						System.out.println("Enter the service code you want to add");
 						String selectedServiceCode = scanner.nextLine();
 						int flag=0;
-						for (Service service : serviceList) {
-							if(newServiceList.contains(service)) {
+//						checking for duplicated service in list
+						for(Service service: newServiceList) {
+							if(selectedServiceCode.equalsIgnoreCase(service.getServiceCode())) {
 								System.out.println(" sorry ,you can't add the same service twice");
 								flag=1;
+								break;
 							}
-							else {
+						}
+						
+						//adding service to the newServiceList
+						if(flag==0) {
+							for (Service service : serviceList) {
+								
 								if (selectedServiceCode.equalsIgnoreCase(service.getServiceCode())) 
 								{
 									flag=1;
@@ -78,9 +124,26 @@ public class BankService {
 									System.out.println("Service added");
 								
 								}
-								
 							}
 						}
+						
+//						for (Service service : serviceList) {
+//							if(newServiceList.contains(service)) {
+//								System.out.println(" sorry ,you can't add the same service twice");
+//								flag=1;
+//								break;
+//							}
+//							else {
+//								if (selectedServiceCode.equalsIgnoreCase(service.getServiceCode())) 
+//								{
+//									flag=1;
+//									newServiceList.add(service);
+//									System.out.println("Service added");
+//								
+//								}
+//								
+//							}
+//						}
 						if(flag==0) {
 							System.out.println("No Such Service");
 						}
@@ -125,8 +188,10 @@ public class BankService {
 
 	}
 
-	public static Customer createCustomer(ArrayList<Product> productList) {
+	public static Customer createCustomer(ArrayList<Product> productList, ArrayList<String> accountNumbers) {
 		
+		String repeat = "n";
+		String accountNo;
 		if (productList.size()<=0) {
 			System.out.println("No products in the list");
 			return null;
@@ -143,8 +208,31 @@ public class BankService {
 		String customerName = scanner.nextLine();
 
 	do {
-		System.out.println("Enter account number");
-		String accountNo = scanner.nextLine();
+		 
+		
+		
+		 if(accountNumbers != null) {
+			    do {
+			    	System.out.println("Enter account number");
+					 accountNo = scanner.nextLine();
+						if(accountNumbers.contains(accountNo)) {
+							System.out.println("account number already exists, try a different account number");
+							repeat = "y";
+						}
+						else {
+							 repeat = "n";
+							 accountNumbers.add(accountNo);
+						}
+			        }while(repeat == "y");	
+			}
+			else {
+				System.out.println("Enter account number");
+				 accountNo = scanner.nextLine();
+				 accountNumbers.add(accountNo);
+				
+			}
+		
+		
 		System.out.println("Enter account Type");
 		String accountType = scanner.nextLine();
 		
@@ -179,6 +267,7 @@ public class BankService {
 	
 		
 		System.out.println("Do you want to add more accounts y/n");
+		scanner.nextLine();
 		accountChoice = scanner.nextLine();
 	}while(accountChoice.equalsIgnoreCase("y"));
 		
@@ -240,6 +329,7 @@ public class BankService {
 	public static Customer manageAccount(Customer customer) {
 		String mainChoice = null;
 		int switchChoice;
+		int leave=0;
 		
 		
 		if(customer == null)
@@ -282,8 +372,13 @@ public class BankService {
 				case 3 : customer =checkBalance(customer);
 						 break;
 				
-				default: System.out.println("bye bye");
+				default: leave=1; 
+						 System.out.println("bye bye");
+				         
 						 
+				}
+				if(leave==1) {
+					break;
 				}
 				System.out.println("Do you want to go back to Account  menu (y/n)");
 				scanner.nextLine();
@@ -361,7 +456,9 @@ public class BankService {
 	
 	
 	private static Customer depositMoney(Customer customer) {
+		if(customer.getAccountList() != null) {
 		ArrayList<Account> accountList = customer.getAccountList();
+		}
 		Account customerAccount = null;
 
 		Scanner scanner = new Scanner(System.in);
@@ -371,33 +468,37 @@ public class BankService {
 		
 		double amount = scanner.nextDouble();
 		
+		//System.out.println(accountList);
 		
-		
-		for(Account account:accountList) {
+		for(Account account: customer.getAccountList()) {
+			
 			if(account.getAccountNo().equalsIgnoreCase(accountNo))
 			{
 				
 					customerAccount = account;
+					//System.out.println(customerAccount.getAccountNo());
 			}
 		}
 			if(customerAccount != null) 
 			{
-			double balance = customerAccount.getBalance();
-			if(customerAccount.getProduct() instanceof LoanAccount)
-			{
-				System.out.println("Are you using ChequeDeposit true/false");
-				boolean isCheque = scanner.nextBoolean();
-				if(isCheque) {
-		  	  LoanAccount loanAccount = (LoanAccount) customerAccount.getProduct();
-		  	  Double chequeDeposit = loanAccount.getChequeDeposit();
-		  	  customerAccount.setBalance((balance + amount)*chequeDeposit);
-				}
-				else
+				double balance = customerAccount.getBalance();
+				if(customerAccount.getProduct() instanceof LoanAccount)
 				{
+					System.out.println("Are you using ChequeDeposit true/false");
+					boolean isCheque = scanner.nextBoolean();
+					if(isCheque) {
+						LoanAccount loanAccount = (LoanAccount) customerAccount.getProduct();
+						Double chequeDeposit = loanAccount.getChequeDeposit();
+						customerAccount.setBalance(balance +( amount * chequeDeposit));
+					}
+					else
+					{
+						customerAccount.setBalance(balance+amount);
+					}
+					
+				}else {
 					customerAccount.setBalance(balance+amount);
 				}
-				
-			}
 
 			System.out.println("Successfully money deposited");
 			return customer;

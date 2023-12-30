@@ -15,6 +15,10 @@ public class BankUtility {
 	public static void main(String[] args) {
 		String mainChoice;
 		int switchChoice;
+		int leave=0;
+		ArrayList<String> serviceCodes = new ArrayList<String>();
+		ArrayList<String> productCodes = new ArrayList<String>();
+		ArrayList<String> accountNumbers = new ArrayList<String>();
 		
 		Customer customer = null;
 		 ArrayList<Service> serviceList = new ArrayList<Service>();
@@ -24,6 +28,7 @@ public class BankUtility {
 		
 		do {
 			System.out.println("\t\tWelcome to bank");
+			System.out.println("Please enter your choice");
 			System.out.println();
 			System.out.println("1.Create Service");
 			System.out.println("2.Create Product");
@@ -37,23 +42,32 @@ public class BankUtility {
 			switchChoice = scanner.nextInt();
 			switch(switchChoice)
 			{
-			case 1 : serviceList.add(BankService.addService());
+			case 1 : serviceList.add(BankService.addService(serviceCodes));
+			   		 if(serviceCodes!= null)
+			   		 {
+			         serviceCodes.add(serviceList.get(serviceList.size()-1).getServiceCode());
+			   		 }
 					 break;
 					
-			case 2 :Product product = BankService.createProduct(serviceList);
+			case 2 :Product product = BankService.createProduct(serviceList,productCodes);
 					if(product!=null) {
 						productList.add(product);
 					}
-					
+					 if(productCodes != null && productList.size()!= 0) {
+			         productCodes.add(productList.get(productList.size()-1).getProductCode());
+					 }
 					 break;
 			case 3 : if(customer == null) {
 				      
-					 	customer = BankService.createCustomer(productList);
+					 	customer = BankService.createCustomer(productList,accountNumbers);
 						}
 					 else {
 						 System.out.println("a customer already exists");
 					 }
-					 break;
+						if(accountNumbers.size() != 0 && customer.getAccountList().size() != 0) {
+			 			accountNumbers.add(customer.getAccountList().get(customer.getAccountList().size()-1).getAccountNo());
+						}
+			 			break;
 			case 4 : customer = BankService.manageAccount(customer);
 					 break;
 			case 5 : BankService.displayCustomer(customer);
@@ -64,7 +78,11 @@ public class BankUtility {
 			   		 break;
 			
 			default: System.out.println("bye bye");
+					 leave=1;
 					 
+			}
+			if(leave ==1) {
+				break;
 			}
 			System.out.println("Do you want to go back to menu (y/n)");
 			mainChoice = scanner.next();

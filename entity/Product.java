@@ -8,8 +8,6 @@ public class Product {
 	private String productName;
 	private ArrayList<Service> serviceList= new ArrayList<Service>();
 	
-	
-	
 	public Product(String productCode, String productName, ArrayList<Service> serviceList) {
 		super();
 		this.productCode = productCode;
